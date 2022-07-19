@@ -4,11 +4,8 @@ import SearchStatus from "./components/searchStatus";
 import Users from "./components/users";
 
 const App = () => {
-  const userInit = api.users.fetchAll().map((user) => {
-    user.favorites = false;
-    return user;
-  });
-  const [users, setUsers] = useState(userInit);
+  const initialUsers = api.users.fetchAll();
+  const [users, setUsers] = useState(initialUsers);
 
   const handleDelete = (userId) => {
     setUsers(users.filter(({ _id }) => _id !== userId));
@@ -16,8 +13,8 @@ const App = () => {
 
   const handleFavorites = (id) => {
     const newUsers = users.map((user) => {
-      if (user._id == id) {
-        return { ...user, favorites: !user.favorites };
+      if (user._id === id) {
+        return { ...user, bookmark: !user.bookmark };
       }
       return user;
     });

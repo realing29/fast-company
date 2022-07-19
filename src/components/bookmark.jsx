@@ -1,5 +1,5 @@
-const Bookmark = ({ favorites, _id, handleFavorites }) => {
-  const className = "bi bi-bookmark" + (favorites ? "-fill" : "");
+const Bookmark = ({ bookmark, _id, handleFavorites }) => {
+  const className = "bi bi-bookmark" + (bookmark ? "-fill" : "");
   return (
     <button onClick={() => handleFavorites(_id)}>
       <i className={className}></i>

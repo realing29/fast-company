@@ -10,7 +10,7 @@ const User = (props) => {
     completedMeetings,
     rate,
     handleDelete,
-    favorites,
+    bookmark,
     handleFavorites,
   } = props;
 
@@ -27,7 +27,7 @@ const User = (props) => {
       <td>{rate}/5</td>
       <td>
         <Bookmark
-          favorites={favorites}
+          bookmark={bookmark}
           handleFavorites={handleFavorites}
           _id={_id}
         />

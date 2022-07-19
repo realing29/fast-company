@@ -1,7 +1,7 @@
 import User from "./user";
 
 const Users = (props) => {
-  const { users, handleDelete, handleFavorites } = props;
+  const { users, ...rest } = props;
   return (
     <>
       {users.length ? (
@@ -19,12 +19,7 @@ const Users = (props) => {
           </thead>
           <tbody>
             {users.map((user) => (
-              <User
-                key={user._id}
-                {...user}
-                handleDelete={handleDelete}
-                handleFavorites={handleFavorites}
-              />
+              <User key={user._id} {...user} {...rest} />
             ))}
           </tbody>
         </table>
