@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Bookmark from "./bookmark";
 import Qualitie from "./qualitie";
 
@@ -43,6 +44,18 @@ const User = (props) => {
       </td>
     </tr>
   );
+};
+
+User.propTypes = {
+  _id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  qualities: PropTypes.array.isRequired,
+  profession: PropTypes.object.isRequired,
+  completedMeetings: PropTypes.number.isRequired,
+  rate: PropTypes.number.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  bookmark: PropTypes.bool.isRequired,
+  handleFavorites: PropTypes.func.isRequired,
 };
 
 export default User;
