@@ -15,7 +15,9 @@ const Users = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    api.professions.fetchAll().then((data) => setProfessions(data));
+    api.professions.fetchAll().then((data) => {
+      setProfessions(data);
+    });
   }, []);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const Users = (props) => {
     setCurrentPage(pageIndex);
   };
   const filteredUsers = selectedProf
-    ? users.filter((user) => user.profession === selectedProf)
+    ? users.filter((user) => user.profession.name === selectedProf.name)
     : users;
   const count = filteredUsers.length;
   const userCrop = paginate(filteredUsers, currentPage, pageSize);

@@ -27,18 +27,10 @@ const User = (props) => {
       <td>{completedMeetings}</td>
       <td>{rate}/5</td>
       <td>
-        <Bookmark
-          bookmark={bookmark}
-          handleFavorites={handleFavorites}
-          _id={_id}
-        />
+        <Bookmark bookmark={bookmark} handleFavorites={handleFavorites} _id={_id} />
       </td>
       <td>
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={() => handleDelete(_id)}
-        >
+        <button type="button" className="btn btn-danger" onClick={() => handleDelete(_id)}>
           delete
         </button>
       </td>

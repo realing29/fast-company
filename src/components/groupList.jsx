@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 const GroupList = ({ items, valueProperty, contentProperty, onItemSelect, selectedItem }) => {
+  console.log("🚀 ~ file: groupList.jsx ~ line 3 ~ GroupList ~ items", items);
   return (
     <ul className="list-group">
       {Object.keys(items).map((key) => (
