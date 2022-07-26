@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 const SearchStatus = ({ number }) => {
   if (number === 0) {
     return (
-      <span className="badge bg-danger">Никто с тобой не тусанет сегодня</span>
+      <h2>
+        <span className="badge bg-danger">Никто с тобой не тусанет сегодня</span>
+      </h2>
     );
   }
 
@@ -13,9 +15,11 @@ const SearchStatus = ({ number }) => {
     a = "а";
   }
   return (
-    <span className="badge bg-primary">
-      {number} человек{a} тусанет с тобой сегодня
-    </span>
+    <h2>
+      <span className="badge bg-primary">
+        {number} человек{a} тусанет с тобой сегодня
+      </span>
+    </h2>
   );
 };
 

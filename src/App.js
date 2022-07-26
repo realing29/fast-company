@@ -1,6 +1,5 @@
 import { useState } from "react";
 import api from "./api";
-import SearchStatus from "./components/searchStatus";
 import Users from "./components/users";
 
 const App = () => {
@@ -23,12 +22,7 @@ const App = () => {
 
   return (
     <div>
-      <SearchStatus number={users.length} />
-      <Users
-        users={users}
-        handleDelete={handleDelete}
-        handleFavorites={handleFavorites}
-      />
+      <Users users={users} handleDelete={handleDelete} handleFavorites={handleFavorites} />
     </div>
   );
 };

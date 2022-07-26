@@ -14,7 +14,14 @@ module.exports = {
   plugins: ["react"],
   rules: {
     semi: [2, "always"],
-    "space-before-function-paren": ["error", "never"],
+    "space-before-function-paren": [
+      "error",
+      {
+        anonymous: "never",
+        named: "never",
+        asyncArrow: "always",
+      },
+    ],
     quotes: [2, "double", { avoidEscape: true }],
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
