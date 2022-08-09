@@ -11,7 +11,7 @@ import _ from "lodash";
 const Users = () => {
   const [professions, setProfessions] = useState();
   const [selectedProf, setSelectedProf] = useState();
-  const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
+  const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
 
