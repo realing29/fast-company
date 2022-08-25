@@ -7,6 +7,7 @@ import GroupList from "./groupList";
 import SearchStatus from "./searchStatus";
 import UserTable from "./usersTable";
 import _ from "lodash";
+import Search from "./serch";
 
 const UsersList = () => {
   const [professions, setProfessions] = useState();
@@ -14,8 +15,8 @@ const UsersList = () => {
   const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
-
   const [users, setUsers] = useState();
+  const [searсh, setSearсh] = useState("");
 
   useEffect(() => {
     api.users.fetchAll().then((data) => setUsers(data));
@@ -46,6 +47,7 @@ const UsersList = () => {
   }, [selectedProf]);
 
   const handleProfessionSelect = (item) => {
+    setSearсh("");
     setSelectedProf(item);
   };
 
@@ -57,13 +59,22 @@ const UsersList = () => {
     setSortBy(item);
   };
 
+  const handleSearch = (text) => {
+    setSelectedProf();
+    setSearсh(text);
+  };
+
   if (users) {
     const filteredUsers = selectedProf
       ? users.filter((user) => JSON.stringify(user.profession) === JSON.stringify(selectedProf))
       : users;
 
-    const count = filteredUsers.length;
-    const sorteredUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
+    const searhingUsers = searсh
+      ? users.filter((user) => new RegExp(searсh, "i").test(user.name))
+      : filteredUsers;
+
+    const count = searhingUsers.length;
+    const sorteredUsers = _.orderBy(searhingUsers, [sortBy.path], [sortBy.order]);
     const usersCrop = paginate(sorteredUsers, currentPage, pageSize);
 
     const clearFilter = () => {
@@ -85,6 +96,7 @@ const UsersList = () => {
         )}
         <div className="d-flex flex-column">
           <SearchStatus number={count} />
+          <Search onSearch={handleSearch} searсh={searсh} />
           {count > 0 && (
             <UserTable
               users={usersCrop}
