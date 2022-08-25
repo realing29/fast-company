@@ -22,6 +22,7 @@ module.exports = {
         asyncArrow: "always",
       },
     ],
+    "multiline-ternary": ["off"],
     quotes: [2, "double", { avoidEscape: true }],
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
