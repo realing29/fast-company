@@ -16,7 +16,7 @@ const UsersListPage = () => {
   const pageSize = 8;
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState();
-  const [searсh, setSearсh] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     api.users.fetchAll().then((data) => setUsers(data));
@@ -47,7 +47,9 @@ const UsersListPage = () => {
   }, [selectedProf]);
 
   const handleProfessionSelect = (item) => {
-    setSearсh("");
+    if (search !== "") {
+      setSearch("");
+    }
     setSelectedProf(item);
   };
 
@@ -60,21 +62,27 @@ const UsersListPage = () => {
   };
 
   const handleSearch = (text) => {
-    setSelectedProf();
-    setSearсh(text);
+    if (selectedProf !== undefined) {
+      setSelectedProf();
+    }
+    setSearch(text);
   };
 
   if (users) {
-    const filteredUsers = selectedProf
-      ? users.filter((user) => JSON.stringify(user.profession) === JSON.stringify(selectedProf))
-      : users;
+    let filteredUsers;
 
-    const searhingUsers = searсh
-      ? users.filter((user) => new RegExp(searсh, "i").test(user.name))
-      : filteredUsers;
+    if (selectedProf) {
+      filteredUsers = users.filter(
+        (user) => JSON.stringify(user.profession) === JSON.stringify(selectedProf),
+      );
+    } else if (search) {
+      filteredUsers = users.filter((user) => new RegExp(search, "i").test(user.name));
+    } else {
+      filteredUsers = users;
+    }
 
-    const count = searhingUsers.length;
-    const sorteredUsers = _.orderBy(searhingUsers, [sortBy.path], [sortBy.order]);
+    const count = filteredUsers.length;
+    const sorteredUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
     const usersCrop = paginate(sorteredUsers, currentPage, pageSize);
 
     const clearFilter = () => {
@@ -96,7 +104,7 @@ const UsersListPage = () => {
         )}
         <div className="d-flex flex-column">
           <SearchStatus number={count} />
-          <Search onSearch={handleSearch} searсh={searсh} />
+          <Search onSearch={handleSearch} searсh={search} />
           {count > 0 && (
             <UserTable
               users={usersCrop}
