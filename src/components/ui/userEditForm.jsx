@@ -17,8 +17,9 @@ const UserEditForm = ({ userId }) => {
     qualities: [],
   });
   const [errors, setErrors] = useState({});
-  const [professions, setProfessions] = useState();
+  const [professions, setProfessions] = useState([]);
   const [qualities, setQualities] = useState([]);
+  const [isLoading, setIsLoading] = useState({ data: false, qualities: false, professions: false });
   const history = useHistory();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const UserEditForm = ({ userId }) => {
           color,
         })),
       });
+      setIsLoading((prev) => ({ ...prev, data: true }));
     });
   }, []);
 
@@ -42,6 +44,7 @@ const UserEditForm = ({ userId }) => {
         value: data[professionName]._id,
       }));
       setProfessions(professionsList);
+      setIsLoading((prev) => ({ ...prev, professions: true }));
     });
     api.qualities.fetchAll().then((data) => {
       const qualitiesList = Object.keys(data).map((optionName) => ({
@@ -50,6 +53,7 @@ const UserEditForm = ({ userId }) => {
         color: data[optionName].color,
       }));
       setQualities(qualitiesList);
+      setIsLoading((prev) => ({ ...prev, qualities: true }));
     });
   }, []);
 
@@ -122,54 +126,64 @@ const UserEditForm = ({ userId }) => {
   };
 
   useEffect(() => setErrors({}), []);
-  return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        label="Имя"
-        name="name"
-        value={data.name}
-        onChange={handleChange}
-        error={errors.name}
-      />
-      <TextField
-        label="Электронная почта"
-        name="email"
-        value={data.email}
-        onChange={handleChange}
-        error={errors.email}
-      />
+  const allLoading = isLoading.data && isLoading.professions && isLoading.qualities;
 
-      <SelectField
-        label="Выберите свою профессию"
-        defaultOption="Choose..."
-        name="profession"
-        options={professions}
-        onChange={handleChange}
-        value={data.profession}
-        error={errors.profession}
-      />
-      <RadioField
-        options={[
-          { name: "Male", value: "male" },
-          { name: "Female", value: "female" },
-          { name: "Other", value: "other" },
-        ]}
-        value={data.sex}
-        name="sex"
-        onChange={handleChange}
-        label="Выберите ваш пол"
-      />
-      <MyltiSelectField
-        options={qualities}
-        onChange={handleChange}
-        value={data.qualities}
-        name="qualities"
-        label="Выберите ваши качества"
-      />
-      <button type="submit" disabled={!isValid} className="btn btn-primary w-100 mx-auto">
-        Обновить
-      </button>
-    </form>
+  return allLoading ? (
+    <div className="container mt-5">
+      <div className="row">
+        <div className="col-md-6 offset-md-3 shadow p-4">
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Имя"
+              name="name"
+              value={data.name}
+              onChange={handleChange}
+              error={errors.name}
+            />
+            <TextField
+              label="Электронная почта"
+              name="email"
+              value={data.email}
+              onChange={handleChange}
+              error={errors.email}
+            />
+
+            <SelectField
+              label="Выберите свою профессию"
+              defaultOption="Choose..."
+              name="profession"
+              options={professions}
+              onChange={handleChange}
+              value={data.profession}
+              error={errors.profession}
+            />
+            <RadioField
+              options={[
+                { name: "Male", value: "male" },
+                { name: "Female", value: "female" },
+                { name: "Other", value: "other" },
+              ]}
+              value={data.sex}
+              name="sex"
+              onChange={handleChange}
+              label="Выберите ваш пол"
+            />
+            <MyltiSelectField
+              options={qualities}
+              onChange={handleChange}
+              value={data.qualities}
+              name="qualities"
+              label="Выберите ваши качества"
+            />
+            <button type="submit" disabled={!isValid} className="btn btn-primary w-100 mx-auto">
+              Обновить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  ) : (
+    "Loading..."
   );
 };
 
