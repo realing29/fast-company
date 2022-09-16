@@ -7,7 +7,13 @@ const Users = () => {
   const params = useParams();
   const { userId, edit } = params;
 
-  return userId ? edit ? <UserEditPage /> : <UserPage userId={userId} /> : <UsersListPage />;
+  return (
+    <div className="container">
+      <div className="row gutters-sm">
+        {userId ? edit ? <UserEditPage /> : <UserPage userId={userId} /> : <UsersListPage />}
+      </div>
+    </div>
+  );
 };
 
 export default Users;

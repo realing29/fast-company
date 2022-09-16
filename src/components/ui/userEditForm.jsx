@@ -7,6 +7,7 @@ import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MyltiSelectField from "../common/form/myltiSelectField";
 import { useHistory } from "react-router-dom";
+import BackHistoryButton from "../common/backHistoryButton";
 
 const UserEditForm = ({ userId }) => {
   const [data, setData] = useState({
@@ -130,6 +131,7 @@ const UserEditForm = ({ userId }) => {
 
   return allLoading ? (
     <div className="container mt-5">
+      <BackHistoryButton />
       <div className="row">
         <div className="col-md-6 offset-md-3 shadow p-4">
           <form onSubmit={handleSubmit}>
