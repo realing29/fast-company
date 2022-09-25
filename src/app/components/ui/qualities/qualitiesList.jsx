@@ -1,7 +1,13 @@
 import PropTypes from "prop-types";
+import { useQualities } from "../../../hooks/useQuality";
 import Qualitie from "./qualitie";
 
-const QualitiesList = ({ qualities }) => {
+const QualitiesList = ({ qualities: qualitiesId }) => {
+  const { getQuality, isLoading } = useQualities();
+  if (isLoading) {
+    return "Loading...";
+  }
+  const qualities = qualitiesId.map((id) => getQuality(id));
   return (
     <>
       {qualities.map((qualitie) => (
