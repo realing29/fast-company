@@ -72,9 +72,7 @@ const UsersListPage = () => {
     let filteredUsers;
 
     if (selectedProf) {
-      filteredUsers = users.filter(
-        (user) => JSON.stringify(user.profession) === JSON.stringify(selectedProf),
-      );
+      filteredUsers = users.filter((user) => user.profession === selectedProf._id);
     } else if (search) {
       filteredUsers = users.filter((user) => new RegExp(search, "i").test(user.name));
     } else {
