@@ -15,7 +15,7 @@ export const QualityProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getQualies();
+    getQualities();
   }, []);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export const QualityProvider = ({ children }) => {
     }
   }, [error]);
 
-  async function getQualies() {
+  async function getQualities() {
     try {
       const { content } = await qualityService.get();
       setQualities(content);
