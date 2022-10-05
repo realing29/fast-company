@@ -7,6 +7,7 @@ import MyltiSelectField from "../common/form/myltiSelectField";
 import CheckBoxFiel from "../common/form/checkBoxField";
 import { useQualities } from "../../hooks/useQuality";
 import { useProfessions } from "../../hooks/useProfession";
+import { useAuth } from "../../hooks/useAuth";
 
 const RegisterForm = () => {
   const [data, setData] = useState({
@@ -17,7 +18,7 @@ const RegisterForm = () => {
     qualities: [],
     licence: false,
   });
-
+  const { signUp } = useAuth();
   const getQualities = () => {
     return useQualities().qualities.map(({ _id, name, color }) => ({
       value: _id,
@@ -96,6 +97,7 @@ const RegisterForm = () => {
     const newData = { ...data, qualities: data.qualities.map((q) => q.value) };
 
     console.log("🚀 ~ file: registerForm.jsx ~ line 115 ~ handleSubmit ~ newData", newData);
+    signUp(newData);
   };
 
   useEffect(() => setErrors({}), []);
