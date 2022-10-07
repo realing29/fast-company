@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import userService from "../services/user.service";
 import { toast } from "react-toastify";
+import { setTokens } from "../services/localStorage.service";
 
 const httpAuth = axios.create();
 
@@ -12,31 +13,46 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-const TOKEN_KEY = "jwt-token";
-const REFRESH_KEY = "jwt-refresh-token";
-const EXPIRES_KEY = "jwt-expires";
-
 const AuthProvider = ({ children }) => {
   const [currentUser, setUser] = useState({});
   const [error, setError] = useState(null);
 
-  function setTokens({ refreshToken, idToken, expiresIn = 3600 }) {
-    const expiresDate = new Date().getTime() + expiresIn * 1000;
-    localStorage.setItem(TOKEN_KEY, idToken);
-    localStorage.setItem(REFRESH_KEY, refreshToken);
-    localStorage.setItem(EXPIRES_KEY, expiresDate);
-  }
-
   const signUp = async ({ email, password, ...rest }) => {
-    const key = "AIzaSyBnDEKzS_HmfLIk_FEqFckSiV-ilU8OJwY";
-    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${key}`;
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.REACT_APP_FIREBASE_KEY}`;
     try {
       const { data } = await httpAuth.post(url, { email, password, returnSecureToken: true });
       setTokens(data);
       await createUser({ _id: data.localId, email, ...rest });
-      console.log("🚀 ~ file: useAuth.jsx ~ line 16 ~ signUp ~ data", data);
     } catch (error) {
       errorCatcher(error);
+      const { code, message } = error.response.data.error;
+      if (code === 400) {
+        if (message === "EMAIL_EXISTS") {
+          const errorObject = { email: "Пользователь с такием Email уже существует" };
+          throw errorObject;
+        }
+      }
+    }
+  };
+
+  const signIn = async ({ email, password }) => {
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.REACT_APP_FIREBASE_KEY}`;
+    try {
+      const { data } = await httpAuth.post(url, { email, password, returnSecureToken: true });
+      setTokens(data);
+    } catch (error) {
+      errorCatcher(error);
+      const { code, message } = error.response.data.error;
+      if (code === 400) {
+        if (message === "EMAIL_NOT_FOUND") {
+          const errorObject = { email: "Пользователя с таким логином не существует" };
+          throw errorObject;
+        }
+        if (message === "INVALID_PASSWORD") {
+          const errorObject = { password: "Неправильный пароль" };
+          throw errorObject;
+        }
+      }
     }
   };
 
@@ -60,7 +76,9 @@ const AuthProvider = ({ children }) => {
     setError(message);
   }
 
-  return <AuthContext.Provider value={{ signUp, currentUser }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ signUp, currentUser, signIn }}>{children}</AuthContext.Provider>
+  );
 };
 
 AuthProvider.propTypes = {
