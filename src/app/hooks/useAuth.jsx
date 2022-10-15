@@ -91,7 +91,6 @@ const AuthProvider = ({ children }) => {
   };
 
   const changeProfile = async (payload) => {
-    console.log("🚀 ~ file: useAuth.jsx ~ line 94 ~ changeProfile ~ data", payload);
     try {
       if (currentUser.email !== payload.email) {
         const { data } = await httpAuth.post("accounts:update", {
