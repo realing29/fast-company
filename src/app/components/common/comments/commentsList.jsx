@@ -7,11 +7,7 @@ const CommentsList = ({ comments, handleCommentsRemove }) => {
       {comments
         .sort((a, b) => b.created_at - a.created_at)
         .map((comment) => (
-          <Comment
-            key={comment._id}
-            comment={comment}
-            handleCommentsRemove={handleCommentsRemove}
-          />
+          <Comment key={comment._id} {...comment} handleCommentsRemove={handleCommentsRemove} />
         ))}
     </>
   );

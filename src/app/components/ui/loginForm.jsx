@@ -4,10 +4,12 @@ import CheckBoxFiel from "../common/form/checkBoxField";
 import TextField from "../common/form/textField";
 import * as yup from "yup";
 import { useAuth } from "../../hooks/useAuth";
+import { useHistory } from "react-router-dom";
 
 const LoginForm = () => {
   const [data, setData] = useState({ email: "", password: "", stayOn: false });
   const [errors, setErrors] = useState({});
+  const history = useHistory();
 
   const { signIn } = useAuth();
 
@@ -16,13 +18,7 @@ const LoginForm = () => {
   };
 
   const validateShema = yup.object().shape({
-    password: yup
-      .string()
-      .required("Пароль обязателен для заполнения")
-      .matches(/(?=.*[A-Z])/, "Пароль должен содержать хотя бы одну заглавную букву")
-      .matches(/(?=.*[0-9])/, "Пароль должен содержать хотя бы цифру")
-      // .matches(/(?=.*[!@#$%^&*])/, "Пароль должен содержать один из специальных символов !@#$%^&*")
-      .matches(/(?=.{8,})/, "Пароль должен состоять минимум из 8 символов"),
+    password: yup.string().required("Пароль обязателен для заполнения"),
     email: yup
       .string()
       .required("Электронная почта обязательна для заполнения")
@@ -49,7 +45,7 @@ const LoginForm = () => {
     if (!isValid) return;
     try {
       await signIn({ email: data.email, password: data.password });
-      history.push("/");
+      history.push(history.location.state ? history.location.state.from.pathname : "/");
     } catch (error) {
       setErrors(error);
     }

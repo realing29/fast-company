@@ -1,13 +1,12 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
-import API from "../../../api";
+import { useAuth } from "../../../hooks/useAuth";
+import { useUser } from "../../../hooks/useUsers";
 import displayDate from "../../../utils/displayDate";
 
-const Comment = ({ comment, handleCommentsRemove }) => {
-  const [userName, setUserName] = useState("");
-  useEffect(() => {
-    API.users.getById(comment.userId).then((data) => setUserName(data.name));
-  }, []);
+const Comment = ({ created_at: created, _id, content, userId, handleCommentsRemove }) => {
+  const { getUserById } = useUser();
+  const { currentUser } = useAuth();
+  const user = getUserById(userId);
 
   return (
     <div className="bg-light card-body  mb-3">
@@ -15,9 +14,7 @@ const Comment = ({ comment, handleCommentsRemove }) => {
         <div className="col">
           <div className="d-flex flex-start ">
             <img
-              src={`https://avatars.dicebear.com/api/avataaars/${(Math.random() + 1)
-                .toString(36)
-                .substring(7)}.svg`}
+              src={user.image}
               className="rounded-circle shadow-1-strong me-3"
               alt="avatar"
               width="65"
@@ -27,17 +24,19 @@ const Comment = ({ comment, handleCommentsRemove }) => {
               <div className="mb-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <p className="mb-1 ">
-                    {userName}
-                    <span className="small">{" - " + displayDate(comment.created_at)}</span>
+                    {user.name}
+                    <span className="small">{" - " + displayDate(created)}</span>
                   </p>
-                  <button
-                    className="btn btn-sm text-primary d-flex align-items-center"
-                    onClick={() => handleCommentsRemove(comment._id)}
-                  >
-                    <i className="bi bi-x-lg"></i>
-                  </button>
+                  {currentUser._id === userId && (
+                    <button
+                      className="btn btn-sm text-primary d-flex align-items-center"
+                      onClick={() => handleCommentsRemove(_id)}
+                    >
+                      <i className="bi bi-x-lg"></i>
+                    </button>
+                  )}
                 </div>
-                <p className="small mb-0">{comment.content}</p>
+                <p className="small mb-0">{content}</p>
               </div>
             </div>
           </div>
@@ -48,7 +47,10 @@ const Comment = ({ comment, handleCommentsRemove }) => {
 };
 
 Comment.propTypes = {
-  comment: PropTypes.object,
+  created_at: PropTypes.number,
+  _id: PropTypes.string,
+  content: PropTypes.string,
+  userId: PropTypes.string,
   handleCommentsRemove: PropTypes.func,
 };
 

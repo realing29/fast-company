@@ -2,14 +2,20 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { validator } from "../../utils/validator";
 import TextField from "../common/form/textField";
-import api from "../../api";
 import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MyltiSelectField from "../common/form/myltiSelectField";
 import { useHistory } from "react-router-dom";
 import BackHistoryButton from "../common/backHistoryButton";
+import { useProfessions } from "../../hooks/useProfession";
+import { useQualities } from "../../hooks/useQuality";
+import { useUser } from "../../hooks/useUsers";
+import { useAuth } from "../../hooks/useAuth";
+import ConfirmModal from "./confirmModal";
 
 const UserEditForm = ({ userId }) => {
+  const history = useHistory();
+  const { changeProfile, currentUser, signIn } = useAuth();
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -18,48 +24,55 @@ const UserEditForm = ({ userId }) => {
     qualities: [],
   });
   const [errors, setErrors] = useState({});
-  const [professions, setProfessions] = useState([]);
-  const [qualities, setQualities] = useState([]);
-  const [isLoading, setIsLoading] = useState({ data: false, qualities: false, professions: false });
-  const history = useHistory();
+  const { professions, isLoading: isLoadingProfessions } = useProfessions();
+  const { qualities, isLoading: isLoadingQualities, getQuality } = useQualities();
+  const { getUserById } = useUser();
+  const [password, setPassword] = useState("");
+  const allLoaded = !isLoadingProfessions && !isLoadingQualities;
+
+  const [showModal, setShowModal] = useState(false);
+  const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
 
   useEffect(() => {
-    api.users.getById(userId).then((user) => {
-      setData({
-        ...user,
-        profession: user.profession._id,
-        qualities: user.qualities.map(({ name, _id, color }) => ({
+    if (!allLoaded) {
+      return;
+    }
+    const user = getUserById(userId);
+    setData({
+      ...user,
+      profession: user.profession,
+      qualities: user.qualities.map((_id) => {
+        const { name, color } = getQuality(_id);
+
+        return {
           label: name,
           value: _id,
           color,
-        })),
-      });
-      setIsLoading((prev) => ({ ...prev, data: true }));
+        };
+      }),
     });
-  }, []);
+  }, [allLoaded]);
 
-  useEffect(() => {
-    api.professions.fetchAll().then((data) => {
-      const professionsList = Object.keys(data).map((professionName) => ({
-        label: data[professionName].name,
-        value: data[professionName]._id,
-      }));
-      setProfessions(professionsList);
-      setIsLoading((prev) => ({ ...prev, professions: true }));
-    });
-    api.qualities.fetchAll().then((data) => {
-      const qualitiesList = Object.keys(data).map((optionName) => ({
-        label: data[optionName].name,
-        value: data[optionName]._id,
-        color: data[optionName].color,
-      }));
-      setQualities(qualitiesList);
-      setIsLoading((prev) => ({ ...prev, qualities: true }));
-    });
-  }, []);
+  const transformProfessions = (data) =>
+    Object.keys(data).map((professionName) => ({
+      label: data[professionName].name,
+      value: data[professionName]._id,
+    }));
+
+  const transformQualities = (data) =>
+    Object.keys(data).map((optionName) => ({
+      label: data[optionName].name,
+      value: data[optionName]._id,
+      color: data[optionName].color,
+    }));
 
   const handleChange = (target) => {
     setData((prevState) => ({ ...prevState, [target.name]: target.value }));
+  };
+
+  const handleChangePassword = (target) => {
+    setPassword(target.value);
   };
 
   const validatorConfig = {
@@ -76,6 +89,11 @@ const UserEditForm = ({ userId }) => {
         message: "Имя обязательно для заполнения",
       },
     },
+    password: {
+      isRequired: {
+        message: "Пароль не должен быть пустым",
+      },
+    },
   };
 
   useEffect(() => {
@@ -90,47 +108,54 @@ const UserEditForm = ({ userId }) => {
 
   const isValid = Object.keys(errors).length === 0;
 
-  const getProfessionById = (id) => {
-    for (const prof of professions) {
-      if (prof.value === id) {
-        return { _id: prof.value, name: prof.label };
-      }
+  async function updateProfile() {
+    const isValid = validate();
+    if (!isValid) return;
+    const { qualities } = data;
+    const newData = {
+      ...data,
+      qualities: qualities.map(({ value }) => value),
+    };
+    try {
+      await changeProfile(newData);
+      history.push("/users/" + currentUser._id);
+    } catch (error) {
+      handleShow();
     }
-  };
-  const getQualities = (elements) => {
-    const qualitiesArray = [];
-    for (const elem of elements) {
-      for (const quality in qualities) {
-        if (elem.value === qualities[quality].value) {
-          qualitiesArray.push({
-            _id: qualities[quality].value,
-            name: qualities[quality].label,
-            color: qualities[quality].color,
-          });
-        }
-      }
-    }
-    return qualitiesArray;
-  };
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isValid = validate();
-    if (!isValid) return;
-    const { profession, qualities } = data;
-    api.users.update(userId, {
-      ...data,
-      profession: getProfessionById(profession),
-      qualities: getQualities(qualities),
-    });
-    history.push(`/users/${userId}`);
+    updateProfile();
   };
 
-  useEffect(() => setErrors({}), []);
-  const allLoading = isLoading.data && isLoading.professions && isLoading.qualities;
+  // Почему-то для firebase при изменении email пользователя важно что бы сессия была свежая.
+  const confirmAuthorization = async () => {
+    await signIn({ email: currentUser.email, password });
+    await updateProfile();
+    setShowModal(false);
+  };
 
-  return allLoading ? (
+  useEffect(() => {
+    setErrors({});
+  }, []);
+
+  return allLoaded ? (
     <div className="container mt-5">
+      <ConfirmModal
+        title="Для подтверждения введите ваш пароль"
+        showModal={showModal}
+        handleClose={handleClose}
+        confirm={confirmAuthorization}
+      >
+        <TextField
+          name="password"
+          value={password}
+          onChange={handleChangePassword}
+          error={errors.name}
+          type="password"
+        />
+      </ConfirmModal>
       <BackHistoryButton />
       <div className="row">
         <div className="col-md-6 offset-md-3 shadow p-4">
@@ -154,7 +179,7 @@ const UserEditForm = ({ userId }) => {
               label="Выберите свою профессию"
               defaultOption="Choose..."
               name="profession"
-              options={professions}
+              options={transformProfessions(professions)}
               onChange={handleChange}
               value={data.profession}
               error={errors.profession}
@@ -171,7 +196,7 @@ const UserEditForm = ({ userId }) => {
               label="Выберите ваш пол"
             />
             <MyltiSelectField
-              options={qualities}
+              options={transformQualities(qualities)}
               onChange={handleChange}
               value={data.qualities}
               name="qualities"
